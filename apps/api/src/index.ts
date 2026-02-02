@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import dotenv from 'dotenv';
 
 import authRoutes from './routes/auth';
@@ -24,6 +25,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serve static web app
+app.use(express.static(path.join(__dirname, '../../web')));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -42,9 +46,9 @@ app.use('/api/reports', reportRoutes);
 // Error handler
 app.use(errorHandler);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+// Serve web app for all other routes (SPA fallback)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../web/index.html'));
 });
 
 app.listen(PORT, () => {

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMoney - Gestione Risparmi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="login-page" class="page active">
+        <div class="login-container">
+            <div class="login-header">
+                <i class="fas fa-wallet logo-icon"></i>
+                <h1>SmartMoney</h1>
+                <p>Gestisci i tuoi risparmi in modo intelligente</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required placeholder="email@esempio.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="La tua password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Accedi</button>
+                <p class="text-center mt-2">
+                    Non hai un account? <a href="#" id="show-register">Registrati</a>
+                </p>
+            </form>
+            <form id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-name">Nome</label>
+                    <input type="text" id="register-name" required placeholder="Il tuo nome">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required placeholder="email@esempio.com">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required placeholder="Minimo 6 caratteri">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Registrati</button>
+                <p class="text-center mt-2">
+                    Hai già un account? <a href="#" id="show-login">Accedi</a>
+                </p>
+            </form>
+            <div id="login-error" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-container" class="hidden">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-wallet"></i>
+                <span>SmartMoney</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transazioni</span>
+                </li>
+                <li class="nav-item" data-page="accounts">
+                    <i class="fas fa-university"></i>
+                    <span>Conti</span>
+                </li>
+                <li class="nav-item" data-page="goals">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Obiettivi</span>
+                </li>
+                <li class="nav-item" data-page="budgets">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Budget</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn btn-outline btn-block">
+                    <i class="fas fa-sign-out-alt"></i> Esci
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 id="page-title">Dashboard</h2>
+                <div class="header-actions">
+                    <span id="user-name"></span>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <section id="dashboard-page" class="content-page active">
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="card-icon blue"><i class="fas fa-wallet"></i></div>
+                        <div class="card-info">
+                            <h3>Saldo Totale</h3>
+                            <p class="amount" id="total-balance">€0.00</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="card-icon green"><i class="fas fa-arrow-up"></i></div>
+                        <div class="card-info">
+                            <h3>Entrate Mese</h3>
+                            <p class="amount positive" id="monthly-income">€0.00</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="card-icon red"><i class="fas fa-arrow-down"></i></div>
+                        <div class="card-info">
+                            <h3>Uscite Mese</h3>
+                            <p class="amount negative" id="monthly-expenses">€0.00</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="card-icon purple"><i class="fas fa-piggy-bank"></i></div>
+                        <div class="card-info">
+                            <h3>Risparmi</h3>
+                            <p class="amount" id="total-savings">€0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Ultime Transazioni</h3>
+                            <a href="#" data-page="transactions">Vedi tutte</a>
+                        </div>
+                        <div class="card-body">
+                            <ul id="recent-transactions" class="transaction-list"></ul>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>I tuoi Conti</h3>
+                            <a href="#" data-page="accounts">Gestisci</a>
+                        </div>
+                        <div class="card-body">
+                            <ul id="accounts-list" class="accounts-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Page -->
+            <section id="transactions-page" class="content-page">
+                <div class="page-header">
+                    <div class="filters">
+                        <select id="filter-type">
+                            <option value="">Tutti i tipi</option>
+                            <option value="income">Entrate</option>
+                            <option value="expense">Uscite</option>
+                        </select>
+                        <input type="month" id="filter-month">
+                    </div>
+                    <button class="btn btn-primary" id="add-transaction-btn">
+                        <i class="fas fa-plus"></i> Nuova Transazione
+                    </button>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <ul id="all-transactions" class="transaction-list"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accounts Page -->
+            <section id="accounts-page" class="content-page">
+                <div class="page-header">
+                    <div></div>
+                    <button class="btn btn-primary" id="add-account-btn">
+                        <i class="fas fa-plus"></i> Nuovo Conto
+                    </button>
+                </div>
+                <div class="accounts-grid" id="accounts-grid"></div>
+            </section>
+
+            <!-- Goals Page -->
+            <section id="goals-page" class="content-page">
+                <div class="page-header">
+                    <div></div>
+                    <button class="btn btn-primary" id="add-goal-btn">
+                        <i class="fas fa-plus"></i> Nuovo Obiettivo
+                    </button>
+                </div>
+                <div class="goals-grid" id="goals-grid"></div>
+            </section>
+
+            <!-- Budgets Page -->
+            <section id="budgets-page" class="content-page">
+                <div class="page-header">
+                    <div></div>
+                    <button class="btn btn-primary" id="add-budget-btn">
+                        <i class="fas fa-plus"></i> Nuovo Budget
+                    </button>
+                </div>
+                <div class="budgets-grid" id="budgets-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuova Transazione</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="transaction-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="tx-type" required>
+                            <option value="expense">Uscita</option>
+                            <option value="income">Entrata</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Importo (€)</label>
+                        <input type="number" id="tx-amount" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Descrizione</label>
+                    <input type="text" id="tx-description" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Conto</label>
+                        <select id="tx-account" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="tx-category" required></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="tx-date" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div id="account-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuovo Conto</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="account-form">
+                <div class="form-group">
+                    <label>Nome Conto</label>
+                    <input type="text" id="acc-name" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="acc-type" required>
+                            <option value="bank">Banca</option>
+                            <option value="cash">Contanti</option>
+                            <option value="card">Carta</option>
+                            <option value="investment">Investimento</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Saldo Iniziale (€)</label>
+                        <input type="number" id="acc-balance" step="0.01" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Colore</label>
+                    <input type="color" id="acc-color" value="#2196F3">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goal-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuovo Obiettivo</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="goal-form">
+                <div class="form-group">
+                    <label>Nome Obiettivo</label>
+                    <input type="text" id="goal-name" required placeholder="es. Vacanza, Auto nuova...">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Importo Target (€)</label>
+                        <input type="number" id="goal-target" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Target</label>
+                        <input type="date" id="goal-date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Colore</label>
+                    <input type="color" id="goal-color" value="#4CAF50">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contribute Modal -->
+    <div id="contribute-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Aggiungi ai Risparmi</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="contribute-form">
+                <input type="hidden" id="contribute-goal-id">
+                <div class="form-group">
+                    <label>Importo (€)</label>
+                    <input type="number" id="contribute-amount" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Note (opzionale)</label>
+                    <input type="text" id="contribute-notes">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Aggiungi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Budget Modal -->
+    <div id="budget-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuovo Budget</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="budget-form">
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="budget-category" required></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Importo (€)</label>
+                        <input type="number" id="budget-amount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Periodo</label>
+                        <select id="budget-period" required>
+                            <option value="monthly">Mensile</option>
+                            <option value="weekly">Settimanale</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
