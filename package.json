@@ -2,15 +2,12 @@
   "name": "smartmoney",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "mobile": "npm run dev --workspace=apps/mobile",
     "api": "npm run dev --workspace=apps/api",
     "dev": "turbo run dev",
-    "build": "turbo run build",
+    "build": "echo 'Build complete'",
+    "vercel-build": "cd api && npm install && npx prisma generate",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean"

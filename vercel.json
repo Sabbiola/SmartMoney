@@ -1,8 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "framework": null,
-  "installCommand": "cd api && npm install",
-  "buildCommand": "echo 'Build complete'",
+  "installCommand": "npm install --prefix api",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": "apps/web",
   "builds": [
     {
@@ -19,12 +20,8 @@
       "dest": "/api/index.ts"
     },
     {
-      "src": "/(.*\\.(js|css|ico|png|jpg|svg|html))",
-      "dest": "/apps/web/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/apps/web/index.html"
+      "dest": "/apps/web/$1"
     }
   ]
 }
