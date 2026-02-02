@@ -3,17 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "mobile": "npm run dev --workspace=apps/mobile",
-    "api": "npm run dev --workspace=apps/api",
-    "dev": "turbo run dev",
-    "build": "echo 'Build complete'",
-    "vercel-build": "cd api && npm install && npx prisma generate",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "clean": "turbo run clean"
-  },
-  "devDependencies": {
-    "turbo": "^2.0.0"
+    "build": "cd api && npm install && npx prisma generate"
   },
   "engines": {
     "node": ">=18.0.0"
