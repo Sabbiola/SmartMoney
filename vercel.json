@@ -1,13 +1,16 @@
 {
   "version": 2,
+  "framework": null,
+  "installCommand": "cd api && npm install",
+  "buildCommand": "echo 'Build complete'",
+  "outputDirectory": "apps/web",
   "builds": [
     {
       "src": "api/index.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "apps/web/**",
-      "use": "@vercel/static"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["api/prisma/**"]
+      }
     }
   ],
   "routes": [
@@ -16,7 +19,7 @@
       "dest": "/api/index.ts"
     },
     {
-      "src": "/(.*\\.(js|css|ico|png|jpg|svg))",
+      "src": "/(.*\\.(js|css|ico|png|jpg|svg|html))",
       "dest": "/apps/web/$1"
     },
     {
