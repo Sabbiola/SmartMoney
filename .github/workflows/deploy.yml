@@ -1,0 +1,131 @@
+name: Deploy SmartMoney
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/api
+        run: npm ci
+
+      - name: Run linter
+        working-directory: apps/api
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: apps/api
+        run: npm test --if-present
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/api
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: apps/api
+        run: npx prisma generate
+
+      - name: Build
+        working-directory: apps/api
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-build
+          path: |
+            apps/api/dist
+            apps/api/prisma
+            apps/api/package*.json
+          retention-days: 1
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-build
+          path: ./deploy
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        run: |
+          # Crea archivio
+          tar -czf deploy.tar.gz -C ./deploy .
+
+          # Upload
+          scp deploy.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/
+
+          # Esegui deploy
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+            APP_DIR="/var/www/smartmoney/app/apps/api"
+
+            echo "Extracting..."
+            mkdir -p $APP_DIR
+            tar -xzf /tmp/deploy.tar.gz -C $APP_DIR
+
+            echo "Installing dependencies..."
+            cd $APP_DIR
+            cp /var/www/smartmoney/.env .env
+            npm ci --production
+
+            echo "Running migrations..."
+            npx prisma generate
+            npx prisma db push --accept-data-loss
+
+            echo "Restarting service..."
+            pm2 restart smartmoney-api || pm2 start dist/index.js --name smartmoney-api
+            pm2 save
+
+            echo "Cleanup..."
+            rm -f /tmp/deploy.tar.gz
+
+            echo "Deploy completed!"
+          EOF
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f https://${{ secrets.VPS_HOST }}/health || exit 1
